@@ -1,0 +1,23 @@
+# Node dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Devvit & Vite build outputs
+dist/
+.devvit/
+.vite/
+
+# Environment & secrets
+.env
+*.env
+*.env.local
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.tmp
+.vscode/*
+!.vscode/settings.json

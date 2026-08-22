@@ -1,0 +1,13 @@
+{
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "json.schemaDownload.enable": true,
+  "js/ts.tsdk.path": "node_modules/typescript/lib",
+  "json.schemas": [
+    {
+      "fileMatch": ["devvit.json"],
+      "url": "https://developers.reddit.com/schema/config-file.v1.json"
+    }
+  ]
+}

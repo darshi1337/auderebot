@@ -1,0 +1,13 @@
+{
+  "name": "auderebot",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "npm run build --prefix auderecoys",
+    "dev": "npm run dev --prefix auderecoys",
+    "deploy": "npm run deploy --prefix auderecoys",
+    "lint": "npm run lint --prefix auderecoys",
+    "prettier": "prettier --write ."
+  }
+}

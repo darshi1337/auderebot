@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developers.reddit.com/schema/config-file.v1.json",
+  "name": "auderecoys",
+  "server": {
+    "dir": "dist/server",
+    "entry": "index.cjs"
+  },
+  "menu": {
+    "items": [
+      {
+        "label": "Post AudereBot Pre-Match Thread",
+        "description": "Post the upcoming AudereBot pre-match thread to the subreddit.",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/auderebot-test"
+      }
+    ]
+  },
+  "triggers": {
+    "onAppInstall": "/internal/triggers/on-app-install"
+  },
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build --watch"
+  },
+  "permissions": {
+    "reddit": true,
+    "http": {
+      "enable": true,
+      "domains": [
+        "site.api.espn.com",
+        "site.web.api.espn.com",
+        "content.core.api.espn.com"
+      ]
+    }
+  },
+  "dev": {
+    "subreddit": "auderecoys_dev"
+  }
+}
