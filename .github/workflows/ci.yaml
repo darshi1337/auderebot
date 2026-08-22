@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: ['main']
+  pull_request:
+    branches: ['main']
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./auderecoys
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Dependencies
+        run: npm install --no-fund --legacy-peer-deps
+      - name: Typecheck
+        run: npm run test:types
+      - name: Lint
+        run: npm run lint
+      - name: Build
+        run: npm run build
