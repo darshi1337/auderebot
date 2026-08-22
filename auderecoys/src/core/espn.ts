@@ -47,6 +47,61 @@ export interface EspnFixtureData {
   odds?: string | undefined;
 }
 
+interface EspnCompetitor {
+  homeAway?: string;
+  team?: {
+    id?: string;
+    displayName?: string;
+    name?: string;
+    abbreviation?: string;
+  };
+  form?: string;
+  score?: string | number;
+}
+
+interface EspnBroadcast {
+  media?: {
+    shortName?: string;
+  };
+}
+
+interface EspnOfficial {
+  fullName?: string;
+  displayName?: string;
+  position?: {
+    name?: string;
+  };
+  role?: string;
+}
+
+interface EspnStat {
+  name?: string;
+  type?: string;
+  value?: number | string;
+}
+
+interface EspnStandingEntry {
+  team?: {
+    id?: string;
+    displayName?: string;
+    name?: string;
+    abbreviation?: string;
+  };
+  stats?: EspnStat[];
+}
+
+interface EspnArticle {
+  id?: string | number;
+  headline?: string;
+  description?: string;
+  published?: string;
+  links?: {
+    web?: {
+      href?: string;
+    };
+  };
+}
+
 /**
  * Fetches the next fixture for Tottenham Hotspur (ESPN team ID 367)
  */
@@ -70,12 +125,12 @@ export async function fetchNextFixture(): Promise<EspnFixtureData> {
   const dateStr = dateObj.toISOString().split('T')[0] || '';
   const kickoff = `${dateObj.getUTCHours().toString().padStart(2, '0')}:${dateObj.getUTCMinutes().toString().padStart(2, '0')} GMT`;
 
-  const homeComp = comp?.competitors?.find((c: any) => c.homeAway === 'home');
-  const awayComp = comp?.competitors?.find((c: any) => c.homeAway === 'away');
+  const homeComp = comp?.competitors?.find((c: EspnCompetitor) => c.homeAway === 'home');
+  const awayComp = comp?.competitors?.find((c: EspnCompetitor) => c.homeAway === 'away');
 
-  const tvChannels: string[] = comp?.broadcasts?.map((b: any) => b.media?.shortName).filter(Boolean) || [];
+  const tvChannels: string[] = comp?.broadcasts?.map((b: EspnBroadcast) => b.media?.shortName).filter(Boolean) || [];
 
-  const officials: string[] = comp?.officials?.map((off: any) => {
+  const officials: string[] = comp?.officials?.map((off: EspnOfficial) => {
     const pos = off.position?.name || off.role || 'Official';
     return `${off.fullName || off.displayName} (${pos})`;
   }).filter(Boolean) || [];
@@ -131,8 +186,8 @@ export async function fetchHeadToHead(eventId: string): Promise<H2HRecord[]> {
       for (const ev of events) {
         if (!ev.competitors || ev.competitors.length < 2) continue;
 
-        const homeComp = ev.competitors.find((c: any) => c.homeAway === 'home') || ev.competitors[0];
-        const awayComp = ev.competitors.find((c: any) => c.homeAway === 'away') || ev.competitors[1];
+        const homeComp = ev.competitors.find((c: EspnCompetitor) => c.homeAway === 'home') || ev.competitors[0];
+        const awayComp = ev.competitors.find((c: EspnCompetitor) => c.homeAway === 'away') || ev.competitors[1];
 
         const dateStr = ev.date ? new Date(ev.date).toISOString().split('T')[0] : '';
         const homeName = homeComp.team?.displayName || 'Home Team';
@@ -181,12 +236,12 @@ async function fetchStandingsForSeason(seasonYear: number): Promise<StandingsRow
     if (!res.ok) return [];
 
     const json = await res.json();
-    const entries = json.children?.[0]?.standings?.entries || [];
+    const entries: EspnStandingEntry[] = json.children?.[0]?.standings?.entries || [];
 
-    return entries.map((entry: any) => {
-      const statsMap = new Map<string, any>();
-      (entry.stats || []).forEach((s: any) => {
-        statsMap.set(s.name || s.type, s);
+    return entries.map((entry) => {
+      const statsMap = new Map<string, EspnStat>();
+      (entry.stats || []).forEach((s) => {
+        statsMap.set(s.name || s.type || '', s);
       });
 
       const getStatVal = (name: string, fallbackName?: string): number => {
@@ -225,9 +280,9 @@ export async function fetchTeamNews(teamId: string = '367'): Promise<NewsArticle
     if (!res.ok) return [];
 
     const json = await res.json();
-    const articles = json.articles || [];
+    const articles: EspnArticle[] = json.articles || [];
 
-    return articles.slice(0, 5).map((art: any) => {
+    return articles.slice(0, 5).map((art) => {
       const articleId = String(art.id || '');
       const headline = art.headline || '';
       const description = art.description || '';

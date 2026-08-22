@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import type { UiResponse } from '@devvit/web/shared';
 import type { MatchData } from '../core/formatter';
+import type { EspnFixtureData, StandingsRow, NewsArticle, H2HRecord } from '../core/espn';
 
 export const menu = new Hono();
 
@@ -55,20 +56,24 @@ menu.post('/auderebot-test', async (c) => {
       if (lineupPost && lineupPost.body && lineupPost.body.trim().length > 0) {
         predictedLineup = lineupPost.body.trim();
       }
-    } catch (e: any) {
-      console.warn('Could not search recent subreddit posts:', e.message);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.warn('Could not search recent subreddit posts:', msg);
     }
 
     // 1. Fetch Fixture Details from ESPN
-    let fixtureData: any = {};
+    let fixtureData: EspnFixtureData;
     try {
       fixtureData = await fetchNextFixture();
-    } catch (e: any) {
-      console.warn('Could not fetch live fixture:', e.message);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.warn('Could not fetch live fixture:', msg);
       fixtureData = {
         eventId: '',
         home_team: 'Tottenham Hotspur',
+        home_team_id: '367',
         away_team: 'Opponent',
+        away_team_id: '',
         competition: 'Premier League',
         date: new Date().toISOString().split('T')[0],
         venue: 'Tottenham Hotspur Stadium',
@@ -78,30 +83,33 @@ menu.post('/auderebot-test', async (c) => {
     }
 
     // 2. Fetch Standings Table from ESPN
-    let standingsData: any[] = [];
+    let standingsData: StandingsRow[] = [];
     try {
       standingsData = await fetchStandings();
-    } catch (e: any) {
-      console.warn('Could not fetch standings:', e.message);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.warn('Could not fetch standings:', msg);
     }
 
     // 3. Fetch Latest Team News from ESPN API (if no custom team news posts from last 5 days)
-    let teamNewsArticles: any[] = [];
+    let teamNewsArticles: NewsArticle[] = [];
     if (!customNews) {
       try {
         teamNewsArticles = await fetchTeamNews('367');
-      } catch (e: any) {
-        console.warn('Could not fetch team news:', e.message);
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : String(e);
+        console.warn('Could not fetch team news:', msg);
       }
     }
 
     // 4. Fetch Historical Head-to-Head Records
-    let headToHeadRecords: any[] = [];
+    let headToHeadRecords: H2HRecord[] = [];
     if (fixtureData.eventId) {
       try {
         headToHeadRecords = await fetchHeadToHead(fixtureData.eventId);
-      } catch (e: any) {
-        console.warn('Could not fetch head to head:', e.message);
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : String(e);
+        console.warn('Could not fetch head to head:', msg);
       }
     }
 
@@ -170,12 +178,13 @@ menu.post('/auderebot-test', async (c) => {
       },
       200
     );
-  } catch (err: any) {
-    console.error('Error posting thread:', err);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error('Error posting thread:', msg);
     return c.json<UiResponse>(
       {
         showToast: {
-          text: `Failed to post thread: ${err?.message || err}`,
+          text: `Failed to post thread: ${msg}`,
         },
       },
       500
