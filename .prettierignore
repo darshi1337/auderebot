@@ -1,0 +1,11 @@
+# Build outputs and dependencies
+node_modules/
+dist/
+.devvit/
+.vite/
+package-lock.json
+
+# Logs and system files
+*.log
+.env*
+.DS_Store
