@@ -75,7 +75,7 @@ menu.post('/auderebot-test', async (c) => {
         away_team: 'Opponent',
         away_team_id: '',
         competition: 'Premier League',
-        date: new Date().toISOString().split('T')[0],
+        date: new Date().toISOString().split('T')[0] || '',
         venue: 'Tottenham Hotspur Stadium',
         kickoff_gmt: '15:00 GMT',
         tv_channels: ['Sky Sports', 'Peacock'],
@@ -125,8 +125,10 @@ menu.post('/auderebot-test', async (c) => {
 
     if (headToHeadRecords.length > 0) {
       const lastMatch = headToHeadRecords[0];
-      matchFacts.push(`Last historical meeting: ${lastMatch.home_team} ${lastMatch.score} ${lastMatch.away_team} on ${lastMatch.date}.`);
-      matchFacts.push(`Total historical encounters tracked: ${headToHeadRecords.length} recent match-ups.`);
+      if (lastMatch) {
+        matchFacts.push(`Last historical meeting: ${lastMatch.home_team} ${lastMatch.score} ${lastMatch.away_team} on ${lastMatch.date}.`);
+        matchFacts.push(`Total historical encounters tracked: ${headToHeadRecords.length} recent match-ups.`);
+      }
     }
 
     if (spursStanding) {
