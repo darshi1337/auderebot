@@ -53,17 +53,25 @@ export interface EspnFixtureData {
   eventId: string;
   home_team: string;
   home_team_id: string;
+  home_logo?: string | undefined;
   away_team: string;
   away_team_id: string;
+  away_logo?: string | undefined;
   home_form?: string | undefined;
   away_form?: string | undefined;
   competition: string;
   date: string;
   kickoff_timestamp?: number | undefined;
   venue: string;
+  venue_capacity?: number | undefined;
+  venue_city?: string | undefined;
   kickoff_gmt: string;
   tv_channels: string[];
   officials?: string[] | undefined;
+}
+
+interface EspnLogo {
+  href?: string;
 }
 
 interface EspnCompetitor {
@@ -73,6 +81,7 @@ interface EspnCompetitor {
     displayName?: string;
     name?: string;
     abbreviation?: string;
+    logos?: EspnLogo[];
   };
   form?: string;
   score?: string | number;
@@ -154,16 +163,25 @@ export async function fetchNextFixture(): Promise<EspnFixtureData> {
     return `${off.fullName || off.displayName} (${pos})`;
   }).filter(Boolean) || [];
 
+  const homeLogo = homeComp?.team?.logos?.[0]?.href;
+  const awayLogo = awayComp?.team?.logos?.[0]?.href;
+  const venueCap = comp?.venue?.capacity ? Number(comp.venue.capacity) : undefined;
+  const venueCity = comp?.venue?.address?.city || comp?.venue?.city;
+
   const result: EspnFixtureData = {
     eventId: String(nextEvent.id || ''),
     home_team: homeComp?.team?.displayName || 'Home Team',
     home_team_id: homeComp?.team?.id || '',
+    home_logo: homeLogo,
     away_team: awayComp?.team?.displayName || 'Away Team',
     away_team_id: awayComp?.team?.id || '',
+    away_logo: awayLogo,
     competition: nextEvent.league?.name || comp?.league?.name || 'Premier League',
     date: dateStr,
     kickoff_timestamp: dateObj.getTime(),
     venue: comp?.venue?.fullName || 'TBD',
+    venue_capacity: venueCap,
+    venue_city: venueCity,
     kickoff_gmt: kickoff,
     tv_channels: tvChannels.length > 0 ? tvChannels : ['Sky Sports', 'Peacock'],
   };

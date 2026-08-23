@@ -2,10 +2,14 @@ import { StandingsRow, NewsArticle, H2HRecord, TeamStatsComparison } from './esp
 
 export interface MatchData {
   home_team: string;
+  home_logo?: string | undefined;
   away_team: string;
+  away_logo?: string | undefined;
   competition: string;
   date: string;
   venue: string;
+  venue_capacity?: number | undefined;
+  venue_city?: string | undefined;
   kickoff_gmt: string;
   tv_channels: string[];
   officials?: string[] | undefined;
@@ -31,10 +35,26 @@ export function formatPost(data: MatchData): string {
   let post = '';
 
   // 1. Header & Match Info
-  post += `# ${data.home_team} vs ${data.away_team}\n\n`;
+  let headerTitle = `${data.home_team} vs ${data.away_team}`;
+  if (data.home_logo && data.away_logo) {
+    headerTitle = `![${data.home_team}](${data.home_logo}) ${headerTitle} ![${data.away_team}](${data.away_logo})`;
+  }
+  post += `# ${headerTitle}\n\n`;
   post += `* **Competition:** ${data.competition}\n`;
   post += `* **Date:** ${data.date}\n`;
-  post += `* **Venue:** ${data.venue}\n`;
+
+  let venueStr = data.venue;
+  const venueMeta: string[] = [];
+  if (data.venue_capacity) {
+    venueMeta.push(`Capacity: ${data.venue_capacity.toLocaleString()}`);
+  }
+  if (data.venue_city) {
+    venueMeta.push(data.venue_city);
+  }
+  if (venueMeta.length > 0) {
+    venueStr += ` (${venueMeta.join(' • ')})`;
+  }
+  post += `* **Venue:** ${venueStr}\n`;
   post += `* **Kickoff:** ${data.kickoff_gmt}\n`;
 
   const tvStr = data.tv_channels.length === 0

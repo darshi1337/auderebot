@@ -246,10 +246,14 @@ export async function checkAndPostPreMatchThread(
   // 8. Format Match Data & Post
   const matchData: MatchData = {
     home_team: fixtureData.home_team,
+    home_logo: fixtureData.home_logo,
     away_team: fixtureData.away_team,
+    away_logo: fixtureData.away_logo,
     competition: fixtureData.competition,
     date: fixtureData.date,
     venue: fixtureData.venue,
+    venue_capacity: fixtureData.venue_capacity,
+    venue_city: fixtureData.venue_city,
     kickoff_gmt: fixtureData.kickoff_gmt,
     tv_channels: fixtureData.tv_channels || [],
     officials: fixtureData.officials,
