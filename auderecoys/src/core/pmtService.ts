@@ -78,7 +78,7 @@ export async function checkAndPostPreMatchThread(
   options: CheckAndPostOptions = {}
 ): Promise<CheckAndPostResult> {
   const { reddit, redis } = await import('@devvit/web/server');
-  const { fetchNextFixture, fetchStandings, fetchTeamNews, fetchHeadToHead } = await import('./espn');
+  const { fetchNextFixture, fetchStandings, fetchTeamNews, fetchHeadToHead, buildTeamStatsComparison } = await import('./espn');
   const { formatPost, generateTitle } = await import('./formatter');
 
   const { force = false, targetSubreddit, currentTime = Date.now(), hoursWindow = 21 } = options;
@@ -241,7 +241,7 @@ export async function checkAndPostPreMatchThread(
     );
   }
 
-  matchFacts.push(`Kickoff scheduled for ${fixtureData.kickoff_gmt} at ${fixtureData.venue}.`);
+  const teamStats = buildTeamStatsComparison(fixtureData.home_team, fixtureData.away_team, standingsData);
 
   // 8. Format Match Data & Post
   const matchData: MatchData = {
@@ -255,6 +255,7 @@ export async function checkAndPostPreMatchThread(
     officials: fixtureData.officials,
     home_form: fixtureData.home_form,
     away_form: fixtureData.away_form,
+    team_stats: teamStats,
     standings: standingsData,
     team_news_articles: teamNewsArticles,
     custom_team_news: customNews,

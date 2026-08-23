@@ -1,4 +1,4 @@
-import { StandingsRow, NewsArticle, H2HRecord } from './espn';
+import { StandingsRow, NewsArticle, H2HRecord, TeamStatsComparison } from './espn';
 
 export interface MatchData {
   home_team: string;
@@ -11,6 +11,7 @@ export interface MatchData {
   officials?: string[] | undefined;
   home_form?: string | undefined;
   away_form?: string | undefined;
+  team_stats?: TeamStatsComparison | undefined;
   standings?: StandingsRow[] | undefined;
   team_news_articles?: NewsArticle[] | undefined;
   custom_team_news?: string | undefined;
@@ -57,6 +58,20 @@ export function formatPost(data: MatchData): string {
       post += `* **${data.away_team}:** \`${formatFormString(data.away_form)}\`\n`;
     }
     post += '\n';
+  }
+
+  // 3. Team Statistics Comparison
+  if (data.team_stats) {
+    const s = data.team_stats;
+    post += '## 📊 Team Statistics Comparison\n\n';
+    post += `| Metric | ${s.home_team} | ${s.away_team} |\n`;
+    post += '|:---|:---:|:---:|\n';
+    post += `| **League Rank** | #${s.home_rank} | #${s.away_rank} |\n`;
+    post += `| **Points (PPG)** | ${s.home_points} (${s.home_ppg}) | ${s.away_points} (${s.away_ppg}) |\n`;
+    post += `| **Goals Scored / Game** | ${s.home_gpg} | ${s.away_gpg} |\n`;
+    post += `| **Goals Conceded / Game** | ${s.home_gapg} | ${s.away_gapg} |\n`;
+    post += `| **Goal Difference** | ${s.home_gd} | ${s.away_gd} |\n`;
+    post += `| **Win Rate** | ${s.home_win_pct} | ${s.away_win_pct} |\n\n`;
   }
 
   // 3. League Standings Context

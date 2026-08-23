@@ -30,6 +30,25 @@ export interface H2HRecord {
   away_team: string;
 }
 
+export interface TeamStatsComparison {
+  home_team: string;
+  away_team: string;
+  home_rank: number;
+  away_rank: number;
+  home_points: number;
+  away_points: number;
+  home_gpg: string;
+  away_gpg: string;
+  home_gapg: string;
+  away_gapg: string;
+  home_ppg: string;
+  away_ppg: string;
+  home_win_pct: string;
+  away_win_pct: string;
+  home_gd: string;
+  away_gd: string;
+}
+
 export interface EspnFixtureData {
   eventId: string;
   home_team: string;
@@ -290,4 +309,43 @@ export async function fetchTeamNews(teamId: string = '367'): Promise<NewsArticle
     console.error('Failed to fetch team news:', err);
     return [];
   }
+}
+
+/**
+ * Builds a team statistics comparison object between home and away teams from standings data.
+ */
+export function buildTeamStatsComparison(
+  homeTeamName: string,
+  awayTeamName: string,
+  standings: StandingsRow[]
+): TeamStatsComparison | undefined {
+  const homeRow = standings.find((s) => s.teamName.toLowerCase().includes(homeTeamName.toLowerCase()));
+  const awayRow = standings.find((s) => s.teamName.toLowerCase().includes(awayTeamName.toLowerCase()));
+
+  if (!homeRow || !awayRow) return undefined;
+
+  const calcGpg = (row: StandingsRow) => (row.gamesPlayed > 0 ? (row.goalsFor / row.gamesPlayed).toFixed(2) : '0.00');
+  const calcGapg = (row: StandingsRow) => (row.gamesPlayed > 0 ? (row.goalsAgainst / row.gamesPlayed).toFixed(2) : '0.00');
+  const calcPpg = (row: StandingsRow) => (row.gamesPlayed > 0 ? (row.points / row.gamesPlayed).toFixed(2) : '0.00');
+  const calcWinPct = (row: StandingsRow) => (row.gamesPlayed > 0 ? `${((row.wins / row.gamesPlayed) * 100).toFixed(1)}%` : '0.0%');
+  const formatGd = (gd: number) => (gd > 0 ? `+${gd}` : `${gd}`);
+
+  return {
+    home_team: homeRow.teamName,
+    away_team: awayRow.teamName,
+    home_rank: homeRow.rank,
+    away_rank: awayRow.rank,
+    home_points: homeRow.points,
+    away_points: awayRow.points,
+    home_gpg: calcGpg(homeRow),
+    away_gpg: calcGpg(awayRow),
+    home_gapg: calcGapg(homeRow),
+    away_gapg: calcGapg(awayRow),
+    home_ppg: calcPpg(homeRow),
+    away_ppg: calcPpg(awayRow),
+    home_win_pct: calcWinPct(homeRow),
+    away_win_pct: calcWinPct(awayRow),
+    home_gd: formatGd(homeRow.goalDifference),
+    away_gd: formatGd(awayRow.goalDifference),
+  };
 }
