@@ -83,7 +83,7 @@ export function formatPost(data: MatchData): string {
   // 3. Team Statistics Comparison
   if (data.team_stats) {
     const s = data.team_stats;
-    post += '## 📊 Team Statistics Comparison\n\n';
+    post += '## Team Statistics Comparison\n\n';
     post += `| Metric | ${s.home_team} | ${s.away_team} |\n`;
     post += '|:---|:---:|:---:|\n';
     post += `| **League Rank** | #${s.home_rank} | #${s.away_rank} |\n`;
