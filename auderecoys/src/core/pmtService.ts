@@ -255,7 +255,6 @@ export async function checkAndPostPreMatchThread(
     officials: fixtureData.officials,
     home_form: fixtureData.home_form,
     away_form: fixtureData.away_form,
-    odds: fixtureData.odds,
     standings: standingsData,
     team_news_articles: teamNewsArticles,
     custom_team_news: customNews,

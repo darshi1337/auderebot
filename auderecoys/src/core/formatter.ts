@@ -11,7 +11,6 @@ export interface MatchData {
   officials?: string[] | undefined;
   home_form?: string | undefined;
   away_form?: string | undefined;
-  odds?: string | undefined;
   standings?: StandingsRow[] | undefined;
   team_news_articles?: NewsArticle[] | undefined;
   custom_team_news?: string | undefined;
@@ -44,10 +43,6 @@ export function formatPost(data: MatchData): string {
 
   if (data.officials && data.officials.length > 0) {
     post += `* **Match Officials:** ${data.officials.join(', ')}\n`;
-  }
-
-  if (data.odds) {
-    post += `* **Betting Odds:** ${data.odds}\n`;
   }
 
   post += '\n';

@@ -45,7 +45,6 @@ export interface EspnFixtureData {
   kickoff_gmt: string;
   tv_channels: string[];
   officials?: string[] | undefined;
-  odds?: string | undefined;
 }
 
 interface EspnCompetitor {
@@ -136,16 +135,6 @@ export async function fetchNextFixture(): Promise<EspnFixtureData> {
     return `${off.fullName || off.displayName} (${pos})`;
   }).filter(Boolean) || [];
 
-  let oddsStr: string | undefined;
-  if (comp?.odds && comp.odds.length > 0) {
-    const primaryOdds = comp.odds[0];
-    if (primaryOdds.details) {
-      oddsStr = primaryOdds.details;
-    } else if (primaryOdds.summary) {
-      oddsStr = primaryOdds.summary;
-    }
-  }
-
   const result: EspnFixtureData = {
     eventId: String(nextEvent.id || ''),
     home_team: homeComp?.team?.displayName || 'Home Team',
@@ -162,7 +151,6 @@ export async function fetchNextFixture(): Promise<EspnFixtureData> {
 
   if (homeComp?.form) result.home_form = homeComp.form;
   if (awayComp?.form) result.away_form = awayComp.form;
-  if (oddsStr) result.odds = oddsStr;
   if (officials.length > 0) result.officials = officials;
 
   return result;

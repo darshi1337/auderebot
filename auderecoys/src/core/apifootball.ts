@@ -16,7 +16,6 @@ export async function fetchNextFixture(): Promise<Partial<MatchData>> {
 
   if (espnData.home_form !== undefined) res.home_form = espnData.home_form;
   if (espnData.away_form !== undefined) res.away_form = espnData.away_form;
-  if (espnData.odds !== undefined) res.odds = espnData.odds;
 
   return res;
 }
