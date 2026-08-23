@@ -19,12 +19,21 @@
   "triggers": {
     "onAppInstall": "/internal/triggers/on-app-install"
   },
+  "scheduler": {
+    "tasks": {
+      "auto-post-pre-match-thread": {
+        "endpoint": "/internal/scheduler/auto-post-pmt",
+        "cron": "0 * * * *"
+      }
+    }
+  },
   "scripts": {
     "build": "vite build",
     "dev": "vite build --watch"
   },
   "permissions": {
     "reddit": true,
+    "redis": true,
     "http": {
       "enable": true,
       "domains": [

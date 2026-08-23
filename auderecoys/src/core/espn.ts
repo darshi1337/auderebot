@@ -40,6 +40,7 @@ export interface EspnFixtureData {
   away_form?: string | undefined;
   competition: string;
   date: string;
+  kickoff_timestamp?: number | undefined;
   venue: string;
   kickoff_gmt: string;
   tv_channels: string[];
@@ -153,6 +154,7 @@ export async function fetchNextFixture(): Promise<EspnFixtureData> {
     away_team_id: awayComp?.team?.id || '',
     competition: nextEvent.league?.name || comp?.league?.name || 'Premier League',
     date: dateStr,
+    kickoff_timestamp: dateObj.getTime(),
     venue: comp?.venue?.fullName || 'TBD',
     kickoff_gmt: kickoff,
     tv_channels: tvChannels.length > 0 ? tvChannels : ['Sky Sports', 'Peacock'],

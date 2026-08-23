@@ -17,6 +17,8 @@
     "isolatedModules": true,
     "esModuleInterop": true,
     "module": "ESNext",
+    "allowImportingTsExtensions": true,
+    "emitDeclarationOnly": true,
     "moduleResolution": "Bundler",
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
