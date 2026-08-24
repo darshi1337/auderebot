@@ -1,4 +1,10 @@
-import { StandingsRow, NewsArticle, H2HRecord, TeamStatsComparison } from './espn';
+import type {
+  StandingsRow,
+  NewsArticle,
+  H2HRecord,
+  TeamStatsComparison,
+  EspnPostMatchData,
+} from './espn.ts';
 
 export interface MatchData {
   home_team: string;
@@ -57,9 +63,10 @@ export function formatPost(data: MatchData): string {
   post += `* **Venue:** ${venueStr}\n`;
   post += `* **Kickoff:** ${data.kickoff_gmt}\n`;
 
-  const tvStr = data.tv_channels.length === 0
-    ? 'Check local listings'
-    : data.tv_channels.join(', ');
+  const tvStr =
+    data.tv_channels.length === 0
+      ? 'Check local listings'
+      : data.tv_channels.join(', ');
   post += `* **TV:** ${tvStr}\n`;
 
   if (data.officials && data.officials.length > 0) {
@@ -101,14 +108,23 @@ export function formatPost(data: MatchData): string {
     post += '|---|:---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|\n';
 
     for (const row of data.standings) {
-      const isSpurs = row.teamName.toLowerCase().includes('tottenham') || row.teamName.toLowerCase().includes('spurs');
-      const isOpponent = row.teamName.toLowerCase().includes(data.home_team.toLowerCase()) || 
-                         row.teamName.toLowerCase().includes(data.away_team.toLowerCase());
+      const isSpurs =
+        row.teamName.toLowerCase().includes('tottenham') ||
+        row.teamName.toLowerCase().includes('spurs');
+      const isOpponent =
+        row.teamName.toLowerCase().includes(data.home_team.toLowerCase()) ||
+        row.teamName.toLowerCase().includes(data.away_team.toLowerCase());
 
-      const teamFormatted = (isSpurs || isOpponent) ? `**${row.teamName}**` : row.teamName;
-      const rankFormatted = (isSpurs || isOpponent) ? `**${row.rank}**` : `${row.rank}`;
-      const ptsFormatted = (isSpurs || isOpponent) ? `**${row.points}**` : `${row.points}`;
-      const gdFormatted = row.goalDifference > 0 ? `+${row.goalDifference}` : `${row.goalDifference}`;
+      const teamFormatted =
+        isSpurs || isOpponent ? `**${row.teamName}**` : row.teamName;
+      const rankFormatted =
+        isSpurs || isOpponent ? `**${row.rank}**` : `${row.rank}`;
+      const ptsFormatted =
+        isSpurs || isOpponent ? `**${row.points}**` : `${row.points}`;
+      const gdFormatted =
+        row.goalDifference > 0
+          ? `+${row.goalDifference}`
+          : `${row.goalDifference}`;
 
       post += `| ${rankFormatted} | ${teamFormatted} | ${row.gamesPlayed} | ${row.wins} | ${row.draws} | ${row.losses} | ${row.goalsFor} | ${row.goalsAgainst} | ${gdFormatted} | ${ptsFormatted} |\n`;
     }
@@ -168,4 +184,88 @@ export function formatPost(data: MatchData): string {
 
 function formatFormString(form: string): string {
   return form.split('').join(' - ');
+}
+
+export type PostMatchData = EspnPostMatchData;
+
+export function generatePostMatchTitle(data: PostMatchData): string {
+  return `[POST-MATCH THREAD] ${data.home_team} ${data.home_score} - ${data.away_score} ${data.away_team}`;
+}
+
+export function formatPostMatchPost(data: PostMatchData): string {
+  let post = '';
+
+  // 1. Header & Final Score
+  let headerTitle = `${data.home_team} ${data.home_score} - ${data.away_score} ${data.away_team}`;
+  if (data.home_logo && data.away_logo) {
+    headerTitle = `![${data.home_team}](${data.home_logo}) **${headerTitle}** ![${data.away_team}](${data.away_logo})`;
+  } else {
+    headerTitle = `**${headerTitle}**`;
+  }
+
+  post += `# ${headerTitle}\n\n`;
+  post += `* **Competition:** ${data.competition}\n`;
+  post += `* **Date:** ${data.date}\n`;
+
+  let venueStr = data.venue;
+  if (data.venue_city) {
+    venueStr += `, ${data.venue_city}`;
+  }
+  post += `* **Venue:** ${venueStr}\n`;
+
+  if (data.attendance) {
+    post += `* **Attendance:** ${data.attendance.toLocaleString()}\n`;
+  }
+  if (data.referee) {
+    post += `* **Referee:** ${data.referee}\n`;
+  }
+
+  post += '\n';
+
+  // 2. Goals & Key Events
+  post += '## Match Events\n\n';
+  if (data.goals && data.goals.length > 0) {
+    for (const g of data.goals) {
+      const assistStr = g.assist ? ` *(Assist: ${g.assist})*` : '';
+      post += `* **${g.time}** ⚽ **${g.scorer}** (${g.teamName})${assistStr}\n`;
+    }
+  } else {
+    post += '*No goals recorded.*\n';
+  }
+  post += '\n';
+
+  // 3. Match Statistics Comparison
+  if (data.stats) {
+    const s = data.stats;
+    post += '## Match Statistics\n\n';
+    post += `| ${data.home_team} | Metric | ${data.away_team} |\n`;
+    post += '|:---:|:---|:---:|\n';
+    post += `| ${s.possession[0]} | **Possession** | ${s.possession[1]} |\n`;
+    post += `| ${s.totalShots[0]} | **Total Shots** | ${s.totalShots[1]} |\n`;
+    post += `| ${s.shotsOnTarget[0]} | **Shots on Target** | ${s.shotsOnTarget[1]} |\n`;
+    post += `| ${s.passPct[0]} | **Pass Accuracy** | ${s.passPct[1]} |\n`;
+    post += `| ${s.corners[0]} | **Corners** | ${s.corners[1]} |\n`;
+    post += `| ${s.fouls[0]} | **Fouls Committed** | ${s.fouls[1]} |\n`;
+    post += `| ${s.yellowCards[0]} | **Yellow Cards** | ${s.yellowCards[1]} |\n`;
+    post += `| ${s.redCards[0]} | **Red Cards** | ${s.redCards[1]} |\n`;
+    post += `| ${s.saves[0]} | **Saves** | ${s.saves[1]} |\n\n`;
+  }
+
+  // 4. Starting Lineups
+  if (data.rosters && data.rosters.length > 0) {
+    post += '## Lineups\n\n';
+    for (const r of data.rosters) {
+      const formStr = r.formation ? ` (${r.formation})` : '';
+      post += `### **${r.teamName}**${formStr}\n`;
+      if (r.starters && r.starters.length > 0) {
+        post += `${r.starters.join(', ')}\n\n`;
+      } else {
+        post += '*Lineup not available.*\n\n';
+      }
+    }
+  }
+
+  post += '**COYS!**\n';
+
+  return post;
 }

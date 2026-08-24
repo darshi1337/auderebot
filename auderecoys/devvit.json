@@ -13,6 +13,13 @@
         "location": "subreddit",
         "forUserType": "moderator",
         "endpoint": "/internal/menu/auderebot-test"
+      },
+      {
+        "label": "Post AudereBot Post-Match Thread",
+        "description": "Post the completed AudereBot post-match thread to the subreddit.",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/auderebot-postmatch"
       }
     ]
   },

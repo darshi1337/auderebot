@@ -1,94 +1,43 @@
-# Devvit Mod Tool Template
+# AudereBot (`auderecoys`)
 
-A template for building Reddit moderation tools using Devvit web. This template provides a complete foundation for creating custom moderation tools with bulk comment management capabilities.
+A Reddit Devvit application for **r/coys** (Tottenham Hotspur) that automates the generation and posting of **Pre-Match Threads** and **Post-Match Threads**.
 
 ## Features
 
-This template includes a working mod tool called **"Mop"** that demonstrates:
-
-- **Bulk Comment Management**: Remove or lock multiple comments at once
-- **Thread-level Actions**: "Mop comments" - Remove/lock a comment and all its replies
-- **Post-level Actions**: "Mop post comments" - Remove/lock all comments on a post
-- **Flexible Options**:
-  - Remove comments, lock comments, or both
-  - Skip distinguished comments (moderator/admin posts)
-- **Permission Checks**: Only moderators with proper permissions can use the tool
-- **User-friendly Forms**: Interactive forms with clear options and validation
+- **Pre-Match Threads**: Automatically fetches upcoming match info, venue details, referee assignments, league standings, head-to-head records, recent form, and news via ESPN APIs.
+- **Post-Match Threads**: Automatically extracts finished match results, final score lines, goal scorers with assists, detailed boxscore statistics, starting lineups, and venue information.
+- **Redis Deduplication**: Prevents duplicate thread submissions using 7-day Redis key expiration.
+- **Moderator Context Menu**: Allows subreddit moderators to manually trigger thread creation directly on Reddit.
+- **Automated Scheduler**: Runs background checks via cron triggers.
 
 ## Tech Stack
 
-- [Devvit](https://developers.reddit.com/): Reddit's platform for building and deploying apps
-- [Vite](https://vite.dev/): Fast build tool for the web components
-- [Hono](https://hono.dev/): Lightweight web framework for backend logic
-- [TypeScript](https://www.typescriptlang.org/): Type-safe development
-
-## Getting Started
-
-1. **Clone this template** or use it as a starting point for your mod tool
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
-3. **Configure your app** in `devvit.json`:
-   - Update the app name
-   - Set your development subreddit
-4. **Start developing**:
-   ```bash
-   npm run dev
-   ```
-5. **Test your changes** in your development subreddit
+- **[Devvit](https://developers.reddit.com/)**: Reddit's developer platform for building app experiences
+- **[Hono](https://hono.dev/)**: Lightweight web framework for route handling
+- **[Vite](https://vite.dev/)**: Build tool and server bundler
+- **[TypeScript](https://www.typescriptlang.org/)**: Type-safe development
 
 ## Project Structure
 
 ```
 src/
-├── index.ts          # Main server setup with Hono routes
+├── index.ts                     # Main entry point mounting Hono routes
 ├── core/
-│   └── nuke.ts       # Core moderation logic for bulk operations
+│   ├── espn.ts                  # ESPN API client for fixtures, summaries, standings, stats & news
+│   ├── formatter.ts             # Pre-match and post-match markdown formatters
+│   ├── pmtService.ts            # Pre-match thread evaluation & posting pipeline
+│   ├── pmtService.test.ts       # Pre-match unit tests
+│   ├── postMatchService.ts      # Post-match thread evaluation & posting pipeline
+│   └── postMatchService.test.ts # Post-match unit tests
 └── routes/
-    ├── api.ts        # Public API endpoints
-    ├── forms.ts      # Form submission handlers
-    ├── menu.ts       # Context menu item handlers
-    └── triggers.ts   # App lifecycle triggers
+    ├── menu.ts                  # Moderator menu action endpoints
+    └── scheduler.ts             # Cron scheduler task endpoints
 ```
-
-## Customizing Your Mod Tool
-
-This template is designed to be easily customizable:
-
-1. **Modify existing actions**: Edit the nuke functionality in `src/core/nuke.ts`
-2. **Add new menu items**: Update `devvit.json` and add handlers in `src/routes/menu.ts`
-3. **Create new forms**: Add form definitions and handlers in `src/routes/forms.ts`
-4. **Add API endpoints**: Extend `src/routes/api.ts` for external integrations
 
 ## Commands
 
-- `npm run dev`: Starts development mode with live reload on your test subreddit
-- `npm run build`: Builds your mod tool for production
-- `npm run deploy`: Uploads a new version of your app to Reddit
-- `npm run launch`: Publishes your app for review and public use
-- `npm run login`: Authenticates your CLI with Reddit
-- `npm run type-check`: Runs TypeScript type checking, linting, and formatting
-
-## How It Works
-
-The template demonstrates Reddit mod tool development through the "Mop" feature:
-
-1. **Context Menu Integration**: Click on the Mod Shield icon in a comment to see custom mod actions
-2. **Permission Validation**: Automatically checks if the user has moderation permissions
-3. **Interactive Forms**: Presents options through Reddit's native form system
-4. **Reddit API**: Processes multiple comments using Reddit's API
-
-## Development Notes
-
-- **Permissions**: The app requires `reddit: true` permission to access Reddit's API
-- **User Types**: Menu items are restricted to `moderator` user type
-
-## Deployment
-
-1. Test thoroughly in your development subreddit
-2. Run `npm run deploy` to upload your app
-3. Use `npm run launch` to submit for Reddit's app review process
-4. Once approved, users can install your mod tool from Reddit's app directory
-
-This template provides everything you need to build powerful, user-friendly moderation tools for Reddit communities.
+- `npm run dev`: Starts development mode with live reload
+- `npm run build`: Builds the application bundle via Vite
+- `npm run test:unit`: Runs Node.js native unit tests
+- `npm run test:types`: Runs TypeScript compiler check (`tsc --build`)
+- `npm run lint`: Runs ESLint code style checks

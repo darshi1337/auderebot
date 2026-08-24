@@ -1,4 +1,9 @@
-import type { EspnFixtureData, StandingsRow, NewsArticle, H2HRecord } from './espn';
+import type {
+  EspnFixtureData,
+  StandingsRow,
+  NewsArticle,
+  H2HRecord,
+} from './espn';
 import type { MatchData } from './formatter';
 
 export interface EvaluationResult {
@@ -37,7 +42,9 @@ export function shouldPostPreMatchThread(
     };
   }
 
-  const kickoffMs = fixture.kickoff_timestamp ?? (fixture.date ? new Date(fixture.date).getTime() : 0);
+  const kickoffMs =
+    fixture.kickoff_timestamp ??
+    (fixture.date ? new Date(fixture.date).getTime() : 0);
   if (!kickoffMs) {
     return {
       shouldPost: true,
@@ -78,10 +85,21 @@ export async function checkAndPostPreMatchThread(
   options: CheckAndPostOptions = {}
 ): Promise<CheckAndPostResult> {
   const { reddit, redis } = await import('@devvit/web/server');
-  const { fetchNextFixture, fetchStandings, fetchTeamNews, fetchHeadToHead, buildTeamStatsComparison } = await import('./espn');
+  const {
+    fetchNextFixture,
+    fetchStandings,
+    fetchTeamNews,
+    fetchHeadToHead,
+    buildTeamStatsComparison,
+  } = await import('./espn');
   const { formatPost, generateTitle } = await import('./formatter');
 
-  const { force = false, targetSubreddit, currentTime = Date.now(), hoursWindow = 21 } = options;
+  const {
+    force = false,
+    targetSubreddit,
+    currentTime = Date.now(),
+    hoursWindow = 21,
+  } = options;
 
   // 1. Fetch Fixture Details from ESPN
   let fixtureData: EspnFixtureData;
@@ -110,7 +128,12 @@ export async function checkAndPostPreMatchThread(
   }
 
   // 3. Evaluate timing unless force option is set
-  const evaluation = shouldPostPreMatchThread(fixtureData, alreadyPosted, hoursWindow, currentTime);
+  const evaluation = shouldPostPreMatchThread(
+    fixtureData,
+    alreadyPosted,
+    hoursWindow,
+    currentTime
+  );
   if (!force && !evaluation.shouldPost) {
     return {
       posted: false,
@@ -158,13 +181,18 @@ export async function checkAndPostPreMatchThread(
     const newsPosts = postsLast5Days.filter((p) => {
       const flairText = (p.flair?.text || '').toLowerCase();
       const titleText = (p.title || '').toLowerCase();
-      return flairText.includes('team news') || titleText.includes('team news') || titleText.includes('[team news]');
+      return (
+        flairText.includes('team news') ||
+        titleText.includes('team news') ||
+        titleText.includes('[team news]')
+      );
     });
 
     if (newsPosts.length > 0) {
       customNews = newsPosts
         .map((p) => {
-          const bodyText = p.body && p.body.trim().length > 0 ? `\n  ${p.body.trim()}` : '';
+          const bodyText =
+            p.body && p.body.trim().length > 0 ? `\n  ${p.body.trim()}` : '';
           return `* [**${p.title}**](${p.url})${bodyText}`;
         })
         .join('\n\n');
@@ -173,7 +201,11 @@ export async function checkAndPostPreMatchThread(
     const lineupPost = postsLast5Days.find((p) => {
       const flairText = (p.flair?.text || '').toLowerCase();
       const titleText = (p.title || '').toLowerCase();
-      return flairText.includes('lineup') || titleText.includes('lineup') || titleText.includes('[lineup]');
+      return (
+        flairText.includes('lineup') ||
+        titleText.includes('lineup') ||
+        titleText.includes('[lineup]')
+      );
     });
 
     if (lineupPost && lineupPost.body && lineupPost.body.trim().length > 0) {
@@ -212,7 +244,9 @@ export async function checkAndPostPreMatchThread(
   // 7. Generate Match Facts
   const matchFacts: string[] = [];
   const spursStanding = standingsData.find(
-    (s) => s.teamName.toLowerCase().includes('tottenham') || s.teamName.toLowerCase().includes('spurs')
+    (s) =>
+      s.teamName.toLowerCase().includes('tottenham') ||
+      s.teamName.toLowerCase().includes('spurs')
   );
   const opponentStanding = standingsData.find(
     (s) =>
@@ -226,7 +260,9 @@ export async function checkAndPostPreMatchThread(
       matchFacts.push(
         `Last historical meeting: ${lastMatch.home_team} ${lastMatch.score} ${lastMatch.away_team} on ${lastMatch.date}.`
       );
-      matchFacts.push(`Total historical encounters tracked: ${headToHeadRecords.length} recent match-ups.`);
+      matchFacts.push(
+        `Total historical encounters tracked: ${headToHeadRecords.length} recent match-ups.`
+      );
     }
   }
 
@@ -241,7 +277,11 @@ export async function checkAndPostPreMatchThread(
     );
   }
 
-  const teamStats = buildTeamStatsComparison(fixtureData.home_team, fixtureData.away_team, standingsData);
+  const teamStats = buildTeamStatsComparison(
+    fixtureData.home_team,
+    fixtureData.away_team,
+    standingsData
+  );
 
   // 8. Format Match Data & Post
   const matchData: MatchData = {
@@ -283,7 +323,10 @@ export async function checkAndPostPreMatchThread(
       await post.sticky();
     }
   } catch (err: unknown) {
-    console.warn('Sticky post action failed or not supported in current environment:', err);
+    console.warn(
+      'Sticky post action failed or not supported in current environment:',
+      err
+    );
   }
 
   // 10. Save deduplication key in Redis (expires in 7 days = 604,800 seconds)
